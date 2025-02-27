@@ -34,10 +34,10 @@ class CategoryPredictor:
 
 ## Data Flow Architecture
 Transactions follow a four-stage processing pipeline:
-User Input: Web form submission via HTTPS POST
-LLM Processing: 220-450ms inference time per transaction
-Data Persistence: SQLite storage with SQLAlchemy ORM
-Visualization: Real-time Plotly dashboards updated at 15-second intervals
+- User Input: Web form submission via HTTPS POST
+- LLM Processing: 220-450ms inference time per transaction
+- Data Persistence: SQLite storage with SQLAlchemy ORM
+- Visualization: Real-time Plotly dashboards updated at 15-second intervals
 The system maintains 98.7% API uptime through connection pooling and automatic session management.
 
 ## LLM Implementation Details
@@ -159,21 +159,24 @@ Start Ollama service:
 ```bash
 uvicorn app.main:app --reload --port 8000
 ```
-The system requires 512MB RAM minimum for LLM operations and 1.2GB disk space for dependencies.
+<!-- The system requires 512MB RAM minimum for LLM operations and 1.2GB disk space for dependencies.-->
 
+<!-- 
 ## Performance Characteristics
-LLM Inference Metrics
-Metric	Value	Measurement Basis
+LLM Inference Metrics:
+|Metric	|Value	|Measurement |Basis
 Avg Response Time	310ms	1,000 sample transactions
 Peak Throughput	32 req/sec	4-core CPU test
 Error Rate	1.2%	Production monitoring (24h)
 Cache Hit Rate	0%	No caching layer implemented
+ACID-compliant transactions
 
 ## Database Performance
 SQLAlchemy configuration handles:
-150 concurrent connections
-850ms average query time
-ACID-compliant transactions
+- 150 concurrent connections
+- 850ms average query time
+- ACID-compliant transactions
+-->
 
 ## Visualization System
 The dashboard incorporates Plotly visualizations updated in real-time6:
@@ -187,8 +190,8 @@ fig_categories = px.pie(
 ```
 
 ## Rendering performance:
-Initial load: 1.8s
-Subsequent updates: 320ms
+Initial load: 1.8s,
+Subsequent updates: 320ms,
 Mobile rendering: 980ms
 
 <!-- This is a comment and will not be visible in the rendered Markdown 
@@ -226,7 +229,7 @@ async def dashboard(request: Request):
     fig = px.line(df, ...)  # 120ms render time
     return templates.TemplateResponse(...)
 ```
-This async implementation supports 45 concurrent dashboard users with sub-second response times6.
+This async implementation supports 45 concurrent dashboard users with sub-second response times.
 
 <!-- This is a comment and will not be visible in the rendered Markdown 
 Security Considerations
@@ -247,7 +250,7 @@ async def add_transaction(
     if type not in ["Expense", "Income"]:
         return error("Invalid transaction type")
 ```
-These validations block 99.4% of invalid input attempts6.
+<!-- These validations block 99.4% of invalid input attempts.-->
 
 ## Future Development
 Planned Enhancements:
