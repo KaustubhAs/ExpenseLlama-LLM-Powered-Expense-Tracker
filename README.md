@@ -12,7 +12,7 @@ Primary LLM inference with constrained output formatting
 
 Pattern-based fallback validation for error correction
 
-python
+```python
 class CategoryPredictor:
     def __init__(self):
         self.llm = Ollama(model="llama3.2")
@@ -26,6 +26,8 @@ class CategoryPredictor:
         prompt = f"""STRICTLY classify this transaction into ONE category..."""
         response = self.llm.invoke(prompt).strip()
         return self._validate_category(response)
+```
+
 Data Flow Architecture
 Transactions follow a four-stage processing pipeline:
 
@@ -43,7 +45,7 @@ LLM Implementation Details
 Prompt Engineering Strategy
 The classification prompt combines multiple optimization techniques7:
 
-python
+```python
 prompt = f"""
 STRICTLY classify this transaction into ONE category from this exact list:
 {", ".join(self.categories)}
@@ -64,7 +66,8 @@ EXAMPLES:
 - "Burger King" → Food
 
 Return ONLY the category name in Title Case. No explanations.
-"""
+```
+
 This structure achieves 89% classification accuracy on first-pass responses, with the validation layer increasing final accuracy to 93%7.
 
 Validation and Error Handling
@@ -76,7 +79,7 @@ Substring matching for common variations
 
 Keyword-based fallback classification
 
-python
+```python
 def _validate_category(self, response: str) -> str:
     response_cleaned = response.strip().lower()
     for category in self.categories:
@@ -87,34 +90,37 @@ def _validate_category(self, response: str) -> str:
     if "transport" in response_cleaned:
         return "Transportation"
     return "Other"
+```
 This validation stack reduces misclassifications by 42% compared to raw LLM output7.
 
 System Configuration
 Dependency Management
 Critical components specified in requirements.txt1:
 
-text
+```text
 langchain-community==0.0.10  # LLM integration layer
 uvicorn==0.22.0              # ASGI server (23ms avg response time)
 sqlalchemy==2.0.27           # ORM with 98.7% query success rate
 plotly==6.0.0                # Visualization (renders in 1.2s avg)
+```
+
 Model Configuration
 The Ollama integration uses these parameters7:
-
-python
+```python
 self.llm = Ollama(
     model="llama3.2",
     temperature=0.3,
     top_p=0.95,
     num_ctx=2048
 )
+```
 This configuration balances speed (310ms avg response time) with accuracy (93%) across 15 test categories7.
 
 API Endpoints
 Transaction Processing
 Core endpoint implementation from main.py6:
 
-python
+```python
 @app.post("/add_transaction")
 async def add_transaction(
     description: str = Form(...),
@@ -132,12 +138,13 @@ async def add_transaction(
     )
     db.add(transaction)
     db.commit()
+```
 Average endpoint response time: 680ms (including LLM processing)6
 
 Debug Endpoints
 Diagnostic endpoints for monitoring LLM performance6:
 
-python
+```python
 @app.get("/debug/categorization")
 async def debug_categorization(description: str):
     category = predictor.predict_category(description)
@@ -146,20 +153,22 @@ async def debug_categorization(description: str):
         "predicted_category": category,
         "model": "llama3.2"
     }
+```
 Installation and Deployment
 Local Development Setup
 Install dependencies:
 
-bash
+```bash
 pip install -r requirements.txt
 Start Ollama service:
-
-bash
+```
+```bash
 ollama serve
 Launch application:
-
-bash
+```
+```bash
 uvicorn app.main:app --reload --port 8000
+```
 The system requires 512MB RAM minimum for LLM operations and 1.2GB disk space for dependencies17.
 
 Performance Characteristics
@@ -181,13 +190,14 @@ ACID-compliant transactions
 Visualization System
 The dashboard incorporates Plotly visualizations updated in real-time6:
 
-python
+```python
 fig_categories = px.pie(
     df[df["type"] == "Expense"],
     values="amount",
     names="category",
     title="Expenses by Category"
 )
+```
 Rendering performance:
 
 Initial load: 1.8s
@@ -225,12 +235,13 @@ LLM response caching (optional)
 
 Async I/O for dashboard rendering
 
-python
+```python
 @app.get("/dashboard")
 async def dashboard(request: Request):
     df = pd.DataFrame(...)  # 45ms load time
     fig = px.line(df, ...)  # 120ms render time
     return templates.TemplateResponse(...)
+```
 This async implementation supports 45 concurrent dashboard users with sub-second response times6.
 
 Security Considerations
@@ -243,7 +254,7 @@ Input validation for all form fields
 
 LLM output sanitization
 
-python
+```python
 @app.post("/add_transaction")
 async def add_transaction(
     amount: float = Form(...),
@@ -253,6 +264,7 @@ async def add_transaction(
         return error("Amount must be positive")
     if type not in ["Expense", "Income"]:
         return error("Invalid transaction type")
+```
 These validations block 99.4% of invalid input attempts6.
 
 Future Development
@@ -265,7 +277,7 @@ Receipt OCR integration
 
 Spending pattern predictions
 
-python
+```python
 # Future multi-model implementation concept
 models = [
     Ollama(model="llama3.2"),
@@ -274,4 +286,5 @@ models = [
 ]
 predictions = [model.invoke(prompt) for model in models]
 final_category = statistical_mode(predictions)
-This architecture could improve accuracy to 97% while maintaining sub-second response times7.
+```
+
